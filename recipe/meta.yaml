@@ -1,0 +1,69 @@
+{% set version = "2.7.14" %}
+{% set name = "deno" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/denoland/deno/releases/download/v{{ version }}/deno_src.tar.gz
+  sha256: 617bc7247da4c8b031e3f155e10bfcb085ddd8f51625a73318dfd02fa5e939d0
+
+build:
+  number: 0
+
+requirements:
+  build:
+    # V8 does not build with gcc or MSVC: deno needs clang on linux and
+    # clang-cl on windows (conda-forge builds it the same way). The aggregate
+    # CBC pins gcc on linux / vs2022 on win and overrides any recipe-local
+    # c_compiler, so the clang compiler packages are listed explicitly here
+    # instead of via {{ compiler('c') }}.
+    - {{ compiler('rust') }}
+    - clang_linux-64 19.1.*         # [linux and x86_64]
+    - clang_linux-aarch64 19.1.*    # [linux and aarch64]
+    - clang-cl_win-64               # [win]
+    - {{ compiler('c') }}           # [osx]
+    - {{ stdlib('c') }}
+    - libclang
+    - lld
+    - cargo-bundle-licenses
+    - ninja
+    - cmake
+    - make
+    - pkg-config
+  host:
+    - zlib {{ zlib }}  # [osx]
+
+test:
+  commands:
+    - deno --version
+    - deno --help
+    - deno eval "console.log('hello from deno')"
+    - if [ "$DENO_INSTALL_ROOT" != "$PREFIX" ]; then echo "DENO_INSTALL_ROOT var not set correctly" && exit 1; fi  # [unix]
+    - IF "%DENO_INSTALL_ROOT:/=\%" NEQ "%PREFIX:/=\%\Library" exit 1  # [win]
+
+about:
+  home: https://deno.com
+  dev_url: https://github.com/denoland/deno
+  doc_url: https://docs.deno.com/runtime
+  license: MIT
+  license_family: MIT
+  license_file:
+    - LICENSE.md
+    - THIRDPARTY.yml
+  summary: A simple, modern and secure runtime for JavaScript and TypeScript that uses V8 and is built in Rust
+  description: |
+    Deno is a simple, modern and secure runtime for JavaScript, TypeScript, and
+    WebAssembly that uses V8 and is built in Rust. It ships a single executable
+    with built-in TypeScript support, web platform APIs, and built-in tooling
+    for formatting, linting, testing, and compiling to standalone binaries.
+
+extra:
+  recipe-maintainers:
+    - danielnachun
+    - mdekstrand
+    - cderv
+    - cscheid
+    - dragonstyle
+    - msarahan
