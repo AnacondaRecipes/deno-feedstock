@@ -30,7 +30,8 @@ requirements:
     - cargo-bundle-licenses
     - ninja
     - cmake
-    - make
+    - make        # [unix]
+    - msys2-make  # [win]
     - pkg-config
   host:
     - zlib {{ zlib }}  # [osx]
