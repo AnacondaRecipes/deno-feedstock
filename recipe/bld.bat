@@ -4,11 +4,11 @@
 set CMAKE_POLICY_VERSION_MINIMUM=3.5
 set RUSTFLAGS=-C target-feature=-crt-static
 
-:: check licenses
+REM check licenses
 cargo-bundle-licenses --format yaml --output THIRDPARTY.yml || goto :error
 
-:: build with Deno's upstream release-lite profile (thin LTO, codegen-units=128)
-:: to avoid rustc-LLVM OOM during final link on hosted Windows runners.
+REM build with Deno's upstream release-lite profile (thin LTO, codegen-units=128)
+REM to avoid rustc-LLVM OOM during final link on hosted Windows runners.
 cargo install --profile release-lite --bins --no-track --locked --root "%LIBRARY_PREFIX%" --path .\cli || goto :error
 
 mkdir %PREFIX:/=\%\etc\conda\activate.d
