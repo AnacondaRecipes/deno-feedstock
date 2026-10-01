@@ -15,14 +15,16 @@ build:
 requirements:
   build:
     # V8 does not build with gcc or MSVC: deno needs clang on linux and
-    # clang-cl on windows (conda-forge builds it the same way). The aggregate
-    # CBC pins gcc on linux / vs2022 on win and overrides any recipe-local
-    # c_compiler, so the clang compiler packages are listed explicitly here
-    # instead of via {{ compiler('c') }}.
+    # clang-cl on windows. The aggregate CBC pins gcc on linux / vs2022 on win
+    # and overrides any recipe-local c_compiler, so the clang compiler packages
+    # are listed explicitly here instead of via {{ compiler('c') }}.
+    # On win, clang_win-64 provides the clang-cl.exe driver (via clangxx/clang),
+    # lld-link and the MSVC-ABI activation; there is no clang-cl_win-64 package
+    # in the defaults channels.
     - {{ compiler('rust') }}
     - clang_linux-64 19.1.*         # [linux and x86_64]
     - clang_linux-aarch64 19.1.*    # [linux and aarch64]
-    - clang-cl_win-64               # [win]
+    - clang_win-64 19.1.*           # [win]
     - {{ compiler('c') }}           # [osx]
     - {{ stdlib('c') }}
     - libclang
