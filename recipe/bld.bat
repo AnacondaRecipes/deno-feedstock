@@ -4,11 +4,14 @@
 set CMAKE_POLICY_VERSION_MINIMUM=3.5
 set RUSTFLAGS=-C target-feature=-crt-static
 
-REM bindgen (via libsqlite3-sys) needs libclang. defaults installs it as a
-REM versioned DLL (libclang-*.dll) in %LIBRARY_BIN%, but bindgen/clang-sys look
-REM for the unversioned "libclang.dll", so copy it under that name.
-set "LIBCLANG_PATH=%LIBRARY_BIN%"
-for %%f in ("%LIBRARY_BIN%\libclang-*.dll") do copy /y "%%f" "%LIBRARY_BIN%\libclang.dll"
+REM bindgen (via libsqlite3-sys) needs libclang. libclang is a build dep, so it
+REM lives in %BUILD_PREFIX% (not the host %PREFIX%). defaults ships it as a
+REM versioned DLL (libclang-*.dll), but bindgen/clang-sys look for the
+REM unversioned "libclang.dll", so copy it under that name.
+set "LIBCLANG_PATH=%BUILD_PREFIX%\Library\bin"
+if exist "%BUILD_PREFIX%\Library\bin\libclang-*.dll" (
+  for %%f in ("%BUILD_PREFIX%\Library\bin\libclang-*.dll") do copy /y "%%f" "%BUILD_PREFIX%\Library\bin\libclang.dll"
+)
 
 REM check licenses
 cargo-bundle-licenses --format yaml --output THIRDPARTY.yml || goto :error
