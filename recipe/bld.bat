@@ -13,6 +13,15 @@ if exist "%BUILD_PREFIX%\Library\bin\libclang-*.dll" (
   for %%f in ("%BUILD_PREFIX%\Library\bin\libclang-*.dll") do copy /y "%%f" "%BUILD_PREFIX%\Library\bin\libclang.dll"
 )
 
+REM cc-rs targets MSVC and passes cl.exe-style args (e.g. /EP), which the
+REM GNU-driver clang.exe activated by clang_win-64 cannot parse. Build with the
+REM clang-cl driver instead, mirroring conda-forge's clang-cl activation
+REM (cf. compiler-rt-feedstock/recipe/bld.bat).
+set "CC=clang-cl.exe"
+set "CXX=clang-cl.exe"
+set "CFLAGS=-DNDEBUG -D_CRT_SECURE_NO_WARNINGS -fms-runtime-lib=dll -fuse-ld=lld"
+set "CXXFLAGS=%CFLAGS% /std:c++17"
+
 REM check licenses
 cargo-bundle-licenses --format yaml --output THIRDPARTY.yml || goto :error
 
